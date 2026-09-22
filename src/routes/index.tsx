@@ -479,7 +479,7 @@ function RequestForm() {
                     </option>
                   ))}
                 </select>
-                {errors.vehicleType && (
+                {errors["vehicleType"] && (
                   <p className={errorClass} role="alert">
                     <AlertCircle className="h-3.5 w-3.5" aria-hidden />
                     {errors.vehicleType}
@@ -506,7 +506,7 @@ function RequestForm() {
                     </option>
                   ))}
                 </select>
-                {errors.service && (
+                {errors["service"] && (
                   <p className={errorClass} role="alert">
                     <AlertCircle className="h-3.5 w-3.5" aria-hidden />
                     {errors.service}
@@ -528,10 +528,10 @@ function RequestForm() {
                   onChange={(e) => setDate(e.target.value)}
                   className={fieldClass}
                 />
-                {errors.date && (
+                {errors["date"] && (
                   <p className={errorClass} role="alert">
                     <AlertCircle className="h-3.5 w-3.5" aria-hidden />
-                    {errors.date}
+                    {errors["date"]}
                   </p>
                 )}
               </div>
@@ -554,10 +554,10 @@ function RequestForm() {
                   }
                   className={fieldClass}
                 />
-                {errors.phone && (
+                {errors["phone"] && (
                   <p className={errorClass} role="alert">
                     <AlertCircle className="h-3.5 w-3.5" aria-hidden />
-                    {errors.phone}
+                    {errors["phone"]}
                   </p>
                 )}
               </div>
