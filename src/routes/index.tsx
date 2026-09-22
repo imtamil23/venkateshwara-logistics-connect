@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Phone,
@@ -8,6 +9,10 @@ import {
   Package,
   Route as RouteIcon,
   Navigation,
+  MessageCircle,
+  CalendarDays,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import heroImage from "@/assets/hero-truck.jpg";
 import loadingImage from "@/assets/loading-parcels.jpg";
@@ -42,6 +47,23 @@ export const Route = createFileRoute("/")({
 
 const PHONE_DISPLAY = "04342 414 817";
 const PHONE_TEL = "tel:+914342414817";
+const MOBILES = [
+  { display: "+91 63822 10003", tel: "tel:+916382210003", wa: "916382210003" },
+  { display: "+91 97869 57249", tel: "tel:+91786957249", wa: "91786957249" },
+];
+const VEHICLE_TYPES = [
+  "Auto",
+  "Mini truck / Tempo",
+  "Lorry",
+  "Tractor with trailer",
+  "Not sure — advise me",
+];
+const SERVICE_TYPES = [
+  "Goods transport",
+  "Parcels & deliveries",
+  "Regular service runs",
+  "Something else",
+];
 const ADDRESS =
   "RC RiceMill, 47, Dharmapuri - Pennagaram Main Rd, Kumarasamypettai, Dharmapuri, Tamil Nadu 636701";
 const MAP_QUERY =
@@ -61,6 +83,7 @@ function Index() {
         <Hero />
         <QuickFacts />
         <Services />
+        <RequestForm />
         <LocationSection />
       </main>
       <SiteFooter />
@@ -88,6 +111,9 @@ function SiteHeader() {
         <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
           <a href="#services" className="hover:text-foreground">
             Services
+          </a>
+          <a href="#request" className="hover:text-foreground">
+            Request a service
           </a>
           <a href="#location" className="hover:text-foreground">
             Location
