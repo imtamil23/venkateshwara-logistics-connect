@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Phone,
@@ -8,6 +9,10 @@ import {
   Package,
   Route as RouteIcon,
   Navigation,
+  MessageCircle,
+  CalendarDays,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import heroImage from "@/assets/hero-truck.jpg";
 import loadingImage from "@/assets/loading-parcels.jpg";
@@ -42,6 +47,23 @@ export const Route = createFileRoute("/")({
 
 const PHONE_DISPLAY = "04342 414 817";
 const PHONE_TEL = "tel:+914342414817";
+const MOBILES = [
+  { display: "+91 63822 10003", tel: "tel:+916382210003", wa: "916382210003" },
+  { display: "+91 97869 57249", tel: "tel:+91786957249", wa: "91786957249" },
+];
+const VEHICLE_TYPES = [
+  "Auto",
+  "Mini truck / Tempo",
+  "Lorry",
+  "Tractor with trailer",
+  "Not sure — advise me",
+];
+const SERVICE_TYPES = [
+  "Goods transport",
+  "Parcels & deliveries",
+  "Regular service runs",
+  "Something else",
+];
 const ADDRESS =
   "RC RiceMill, 47, Dharmapuri - Pennagaram Main Rd, Kumarasamypettai, Dharmapuri, Tamil Nadu 636701";
 const MAP_QUERY =
@@ -61,6 +83,7 @@ function Index() {
         <Hero />
         <QuickFacts />
         <Services />
+        <RequestForm />
         <LocationSection />
       </main>
       <SiteFooter />
@@ -88,6 +111,9 @@ function SiteHeader() {
         <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
           <a href="#services" className="hover:text-foreground">
             Services
+          </a>
+          <a href="#request" className="hover:text-foreground">
+            Request a service
           </a>
           <a href="#location" className="hover:text-foreground">
             Location
@@ -280,6 +306,285 @@ function Services() {
   );
 }
 
+function formatDate(dateStr: string) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${d} ${months[m - 1]} ${y}`;
+}
+
+function RequestForm() {
+  const [vehicleType, setVehicleType] = useState("");
+  const [service, setService] = useState("");
+  const [date, setDate] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sentTo, setSentTo] = useState<string | null>(null);
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  function localPhone() {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) return digits.slice(2);
+    return digits;
+  }
+
+  function validate() {
+    const next: Record<string, string> = {};
+    if (!vehicleType) next.vehicleType = "Please choose a vehicle type.";
+    if (!service) next.service = "Please choose the service you need.";
+    if (!date) next.date = "Please pick a date.";
+    else if (date < today) next.date = "Please pick today or a later date.";
+    if (!/^[6-9]\d{9}$/.test(localPhone()))
+      next.phone = "Enter a valid 10-digit Indian mobile number.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function waLink(waNumber: string) {
+    const lines = [
+      "Hello Sree Venkateswaraa Regular Service, I would like to request a service.",
+      `Vehicle type: ${vehicleType}`,
+      `Service needed: ${service}`,
+      `Preferred date: ${formatDate(date)}`,
+      `My number: ${localPhone()}`,
+    ];
+    return `https://wa.me/${waNumber}?text=${encodeURIComponent(
+      lines.join("\n")
+    )}`;
+  }
+
+  function handleSubmit(waNumber: string) {
+    if (!validate()) return;
+    window.open(waLink(waNumber), "_blank", "noopener,noreferrer");
+    setSentTo(waNumber);
+  }
+
+  const fieldClass =
+    "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30";
+  const errorClass = "mt-1 flex items-center gap-1 text-xs text-destructive";
+
+  return (
+    <section id="request" className="border-t border-border bg-card">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-2">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            Book a pickup
+          </p>
+          <h2 className="mt-2 font-display text-3xl uppercase sm:text-4xl">
+            Request a service
+          </h2>
+          <p className="mt-4 max-w-md text-sm text-muted-foreground">
+            Tell us what you need moved and when. Your request opens in
+            WhatsApp, ready to send straight to our team — we will confirm the
+            vehicle, timing and price back to you.
+          </p>
+          <ul className="mt-6 space-y-3 text-sm">
+            {[
+              "Pick the vehicle type that fits your load",
+              "Choose the service you need",
+              "We reply on WhatsApp or call you back",
+            ].map((point) => (
+              <li key={point} className="flex items-start gap-2">
+                <CheckCircle2
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                  aria-hidden
+                />
+                <span className="text-muted-foreground">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8">
+          {sentTo ? (
+            <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                <CheckCircle2 className="h-7 w-7" aria-hidden />
+              </span>
+              <h3 className="font-display text-2xl uppercase">
+                Thanks for contacting us!
+              </h3>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                Your request was opened in WhatsApp for{" "}
+                <span className="font-semibold text-foreground">
+                  {sentTo === MOBILES[0].wa
+                    ? MOBILES[0].display
+                    : MOBILES[1].display}
+                </span>
+                . Just press send there, and we will confirm your booking
+                shortly. You can also reach us on the other number if needed.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {MOBILES.filter((m) => m.wa !== sentTo).map((m) => (
+                  <button
+                    key={m.wa}
+                    type="button"
+                    onClick={() => handleSubmit(m.wa)}
+                    className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary"
+                  >
+                    <MessageCircle className="h-4 w-4" aria-hidden />
+                    Send to {m.display}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSentTo(null);
+                    setErrors({});
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                >
+                  New request
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit(MOBILES[0].wa);
+              }}
+              className="flex flex-col gap-4"
+            >
+              <div>
+                <label
+                  htmlFor="vehicleType"
+                  className="mb-1.5 block text-sm font-semibold"
+                >
+                  Vehicle type
+                </label>
+                <select
+                  id="vehicleType"
+                  value={vehicleType}
+                  onChange={(e) => setVehicleType(e.target.value)}
+                  className={fieldClass}
+                >
+                  <option value="">Select a vehicle</option>
+                  {VEHICLE_TYPES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+                {errors["vehicleType"] && (
+                  <p className={errorClass} role="alert">
+                    <AlertCircle className="h-3.5 w-3.5" aria-hidden />
+                    {errors.vehicleType}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="service"
+                  className="mb-1.5 block text-sm font-semibold"
+                >
+                  Required service
+                </label>
+                <select
+                  id="service"
+                  value={service}
+                  onChange={(e) => setService(e.target.value)}
+                  className={fieldClass}
+                >
+                  <option value="">Select a service</option>
+                  {SERVICE_TYPES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                {errors["service"] && (
+                  <p className={errorClass} role="alert">
+                    <AlertCircle className="h-3.5 w-3.5" aria-hidden />
+                    {errors.service}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="date"
+                  className="mb-1.5 block text-sm font-semibold"
+                >
+                  Preferred date
+                </label>
+                <input
+                  id="date"
+                  type="date"
+                  min={today}
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className={fieldClass}
+                />
+                {errors["date"] && (
+                  <p className={errorClass} role="alert">
+                    <AlertCircle className="h-3.5 w-3.5" aria-hidden />
+                    {errors["date"]}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="mb-1.5 block text-sm font-semibold"
+                >
+                  Your phone number
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  placeholder="10-digit mobile number"
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                  }
+                  className={fieldClass}
+                />
+                {errors["phone"] && (
+                  <p className={errorClass} role="alert">
+                    <AlertCircle className="h-3.5 w-3.5" aria-hidden />
+                    {errors["phone"]}
+                  </p>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <MessageCircle className="h-4 w-4" aria-hidden />
+                Send request on WhatsApp
+              </button>
+              <p className="text-center text-xs text-muted-foreground">
+                Or call us directly:{" "}
+                <a
+                  href={PHONE_TEL}
+                  className="font-semibold text-primary underline underline-offset-4"
+                >
+                  {PHONE_DISPLAY}
+                </a>
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function LocationSection() {
   return (
     <section id="location" className="border-t border-border bg-secondary">
@@ -326,6 +631,15 @@ function LocationSection() {
                 >
                   {PHONE_DISPLAY}
                 </a>
+                {MOBILES.map((m) => (
+                  <a
+                    key={m.wa}
+                    href={m.tel}
+                    className="mt-1 block text-sm font-medium text-primary underline underline-offset-4"
+                  >
+                    {m.display}
+                  </a>
+                ))}
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -378,12 +692,25 @@ function SiteFooter() {
         </div>
         <div className="text-xs text-primary-foreground/70">
           <p>{ADDRESS}</p>
-          <a
-            href={PHONE_TEL}
-            className="mt-1 inline-block font-semibold text-primary-foreground underline underline-offset-4"
-          >
-            {PHONE_DISPLAY}
-          </a>
+          <p>
+            <a
+              href={PHONE_TEL}
+              className="font-semibold text-primary-foreground underline underline-offset-4"
+            >
+              {PHONE_DISPLAY}
+            </a>
+            {MOBILES.map((m) => (
+              <span key={m.wa}>
+                {" · "}
+                <a
+                  href={m.tel}
+                  className="font-semibold text-primary-foreground underline underline-offset-4"
+                >
+                  {m.display}
+                </a>
+              </span>
+            ))}
+          </p>
         </div>
       </div>
     </footer>
