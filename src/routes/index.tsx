@@ -6,7 +6,7 @@ import {
   Star,
   Truck,
   Package,
-  Route,
+  Route as RouteIcon,
   Navigation,
 } from "lucide-react";
 import heroImage from "@/assets/hero-truck.jpg";
@@ -209,7 +209,7 @@ function Services() {
       text: "Pickup and drop of parcels and consignments, big or small.",
     },
     {
-      icon: Route,
+      icon: RouteIcon,
       title: "Regular service runs",
       text: "Scheduled, repeat trips for shops, mills and businesses that move goods every day.",
     },
