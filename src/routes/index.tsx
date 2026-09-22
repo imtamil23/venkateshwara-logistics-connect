@@ -631,6 +631,15 @@ function LocationSection() {
                 >
                   {PHONE_DISPLAY}
                 </a>
+                {MOBILES.map((m) => (
+                  <a
+                    key={m.wa}
+                    href={m.tel}
+                    className="mt-1 block text-sm font-medium text-primary underline underline-offset-4"
+                  >
+                    {m.display}
+                  </a>
+                ))}
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -683,12 +692,25 @@ function SiteFooter() {
         </div>
         <div className="text-xs text-primary-foreground/70">
           <p>{ADDRESS}</p>
-          <a
-            href={PHONE_TEL}
-            className="mt-1 inline-block font-semibold text-primary-foreground underline underline-offset-4"
-          >
-            {PHONE_DISPLAY}
-          </a>
+          <p>
+            <a
+              href={PHONE_TEL}
+              className="font-semibold text-primary-foreground underline underline-offset-4"
+            >
+              {PHONE_DISPLAY}
+            </a>
+            {MOBILES.map((m) => (
+              <span key={m.wa}>
+                {" · "}
+                <a
+                  href={m.tel}
+                  className="font-semibold text-primary-foreground underline underline-offset-4"
+                >
+                  {m.display}
+                </a>
+              </span>
+            ))}
+          </p>
         </div>
       </div>
     </footer>
